@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Gen AI Package - Segment 2</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            overflow: hidden;
+        }
+
+        .section {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 900px;
+            display: flex;
+            gap: 2rem;
+            min-height: 400px;
+        }
+
+        .content-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .image-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            min-height: 300px;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+        }
+
+        .page {
+            display: none;
+            flex: 1;
+        }
+
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 {
+            color: #6366f1;
+            margin-bottom: 1.5rem;
+        }
+
+        .question {
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #8b5cf6;
+            margin-bottom: 1rem;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            padding: 12px 20px;
+            border: 2px solid #6366f1;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            text-align: left;
+            width: 100%;
+            color: #6366f1;
+        }
+
+        .option-btn:hover {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border-color: transparent;
+        }
+
+        .option-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .option-btn.correct {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .option-btn.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .next-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: auto;
+            align-self: flex-end;
+            transition: opacity 0.3s ease;
+        }
+
+        .next-btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .section {
+                flex-direction: column;
+                padding: 1.5rem;
+            }
+            
+            .image-container {
+                min-height: 200px;
+            }
+        }
+        .progress-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.progress-bar {
+    width: 600px;
+    height: 10px;
+    background: #e2e8f0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    transition: width 0.5s ease;
+}
+
+.progress-labels {
+    width: 600px;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 12px;
+    color: white;
+}
+    </style>
+    <script>
+        // Points system configuration
+        const POINTS_CONFIG = {
+            basePoints: 100,
+            timeBonus: {
+                perfect: 50,
+                good: 30,
+                normal: 10
+            },
+            penalties: {
+                wrongAnswer: -20,
+                timeOver: -10
+            }
+        };
+        
+        let startTime;
+        let wrongAttempts = 0;
+        let totalPoints = 0;
+        </script>
+</head>
+<body>
+    <div class="section">
+        <div class="content-container">
+            <!-- Page 1: Content -->
+            <div id="page1" class="page active">
+                <h2>Prompting AI</h2>
+                <p>A prompt is an instruction you write to interact with a Gen AI tool to search for information or generate ideas.</p>
+                <p>Some prompting tips are:</p>
+                <ul>
+                    <li>Use natural language and full sentences. Write as if you are speaking to another person.</li>
+                    <li>Be specific and iterate. Tell the Gen AI tool what you need it to do.</li>
+                    <li>Be concise and clear. Start with clear, direct questions.</li>
+                    <li>Keep the conversation going. Fine-tune and use follow-up prompts to get a better response.</li>
+                </ul>
+                <button class="next-btn" onclick="showPage(2)">Next</button>
+            </div>
+
+            <!-- Page 2: Question -->
+            <div id="page2" class="page">
+                <h3>Question 3: Which of these are a bad prompt?</h3>
+                <div class="options">
+                    <button class="option-btn" onclick="checkAnswer('a')">Explain the basic concepts of climate change in simple terms suitable for a secondary school presentation.</button>
+                    <button class="option-btn" onclick="checkAnswer('b')">Write a 500-word guide about caring for German Shepherd puppies in their first 3 months, including feeding, training, and healthcare tips.</button>
+                    <button class="option-btn" onclick="checkAnswer('c')">Marketing ideas</button>
+                </div>
+                <div class="feedback" id="feedback"></div>
+                <button class="next-btn" onclick="showPage(1)">Back</button>
+            </div>
+        </div>
+        <div class="image-container">
+            <img src="promptexample.png">
+        </div>
+    </div>
+
+    <script>
+        function showPage(pageNum) {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    
+    // Show selected page
+    document.getElementById('page' + pageNum).classList.add('active');
+    
+    // Start timer if showing question page
+    if (pageNum === 2) {
+        startTime = Date.now();
+        wrongAttempts = 0;
+    }
+}
+
+function checkAnswer(selected) {
+    const buttons = document.querySelectorAll('.option-btn');
+    const feedback = document.getElementById('feedback');
+    
+    // Remove any existing correct/incorrect classes
+    buttons.forEach(button => {
+        button.classList.remove('correct', 'incorrect');
+    });
+
+    if (selected === 'c') {
+        // Calculate points for correct answer
+        const timeTaken = (Date.now() - startTime) / 1000;
+        let points = POINTS_CONFIG.basePoints;
+        
+        // Add time bonus
+        if (timeTaken <= 5) {
+            points += POINTS_CONFIG.timeBonus.perfect;
+        } else if (timeTaken <= 10) {
+            points += POINTS_CONFIG.timeBonus.good;
+        } else if (timeTaken <= 15) {
+            points += POINTS_CONFIG.timeBonus.normal;
+        } else if (timeTaken > 20) {
+            points += POINTS_CONFIG.penalties.timeOver;
+        }
+        
+        // Subtract penalties for wrong attempts
+        points += wrongAttempts * POINTS_CONFIG.penalties.wrongAnswer;
+        
+        // Ensure minimum points is 0
+        points = Math.max(0, Math.round(points));
+        totalPoints += points;
+
+        // Display feedback with points
+        buttons[2].classList.add('correct');
+        feedback.innerHTML = `
+            <div style="color: green">
+                <p>Correct! That prompt is too vague.</p>
+                <p>Time: ${Math.round(timeTaken)} seconds</p>
+                <p>Points earned: ${points}</p>
+            </div>`;
+        
+        // Disable all buttons after correct answer
+        buttons.forEach(button => {
+            button.disabled = true;
+        });
+
+        // Navigate to next segment after correct answer
+        setTimeout(() => {
+            window.location.href = 'segment4.html';
+        }, 2000);
+    } else {
+        // Wrong answer
+        wrongAttempts++;
+        buttons[selected === 'a' ? 0 : 1].classList.add('incorrect');
+        feedback.innerHTML = `
+            <div style="color: red">
+                <p>Incorrect. Please try again.</p>
+                <p>Penalty: ${POINTS_CONFIG.penalties.wrongAnswer} points</p>
+            </div>`;
+        
+        // Disable only the incorrect button
+        buttons[selected === 'a' ? 0 : 1].disabled = true;
+    }
+}
+    </script>
+</body>
+</html>

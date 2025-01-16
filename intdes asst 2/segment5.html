@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Gen AI Package - Segment 5</title>
+    <style>
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    overflow: hidden;
+}
+
+.section {
+    background: white;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 900px;
+    display: flex;
+    gap: 2rem;
+    max-height: 600px;
+}
+
+.content-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.page {
+    display: none;
+    flex: 1;
+    gap: 15px;
+}
+
+.page.active {
+    display: flex;
+    flex-direction: column;
+}
+
+h2 {
+    color: #6366f1;
+    margin-bottom: 1.5rem;
+}
+
+h3 {
+    color: #8b5cf6;
+    margin-top: 2px;
+    margin-bottom: 1px;
+    font-size: 1.1rem;
+}
+
+.sequence-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 8px 0;
+    flex: 1;
+}
+
+
+.sequence-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sequence-btn {
+    padding: 8px 15px;
+    border: 2px solid #6366f1;
+    background: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    text-align: left;
+    width: 100%;
+    color: #6366f1;
+    min-height: 40px;
+}
+
+.sequence-btn:hover {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border-color: transparent;
+}
+
+.sequence-btn.selected {
+    background: #6366f1;
+    color: white;
+}
+
+.sequence-btn.correct {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+}
+
+.sequence-btn.incorrect {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+}
+
+.sequence-answer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sequence-slot {
+    padding: 8px 10px;
+    border: 2px dashed #6366f1;
+    border-radius: 8px;
+    color: #6366f1;
+    min-height: 40px;
+    font-size: 0.9rem;
+}
+
+.sequence-slot.filled {
+    border-style: solid;
+    background: #f0f4ff;
+}
+
+.feedback {
+    padding: 0px;
+    border-radius: 6px;
+    font-weight: bold;
+    min-height: 30px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.next-btn, .check-btn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: opacity 0.3s ease;
+
+}
+
+.next-btn:hover, .check-btn:hover {
+    opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+    .section {
+        flex-direction: column;
+        padding: 1.5rem;
+    }
+    
+    .image-container {
+        min-height: 200px;
+    }
+}
+        @media (max-width: 768px) {
+            .section {
+                flex-direction: column;
+                padding: 1.5rem;
+            }
+            
+            .image-container {
+                min-height: 200px;
+            }
+        }
+    </style>
+    <script>
+        // Points system configuration
+        const POINTS_CONFIG = {
+            basePoints: 100,
+            timeBonus: {
+                perfect: 50,
+                good: 30,
+                normal: 10
+            },
+            penalties: {
+                wrongAnswer: -20,
+                timeOver: -10
+            }
+        };
+        
+        let startTime;
+        let wrongAttempts = 0;
+        let totalPoints = 0;
+        </script>
+</head>
+<body>
+    <div class="section">
+        <div class="content-container">
+            <!-- Page 1: Content -->
+            <div id="page1" class="page active">
+                <h2>Safeguarding against AI</h2>
+                <p>Adopting the National Library Board's S.U.R.E. framework can identify tell-tale signs of AI misinformation.</p>
+                <p>S - Source: What are the origins? Are they trustworthy?</p>
+                <p>U - Understand: Do you know what you're reading? Search for clarity</p>
+                <p>R - Research: Dig deeper. What other sources are there?</p>
+                <p>E - Evaluate: Find the balance between angles. Exercise fair judgement.</p>
+                <button class="next-btn" onclick="showPage(2)">Next</button>
+            </div>
+
+            <!-- Page 2: Question -->
+            <div id="page2" class="page">
+                <h3>Arrange the S.U.R.E. steps in the correct sequence:</h3>
+                <div class="sequence-container">
+                    <div class="sequence-options">
+                        <button class="sequence-btn" data-step="4" onclick="selectStep(this)">
+                            E - Evaluate angles and exercise fair judgment
+                        </button>
+                        <button class="sequence-btn" data-step="2" onclick="selectStep(this)">
+                            U - Understand content thoroughly
+                        </button>
+                        <button class="sequence-btn" data-step="1" onclick="selectStep(this)">
+                            S - Source checking for trustworthiness
+                        </button>
+                        <button class="sequence-btn" data-step="3" onclick="selectStep(this)">
+                            R - Research additional perspectives
+                        </button>
+                    </div>
+                    <div class="sequence-answer">
+                        <div class="sequence-slot">1. ____________________</div>
+                        <div class="sequence-slot">2. ____________________</div>
+                        <div class="sequence-slot">3. ____________________</div>
+                        <div class="sequence-slot">4. ____________________</div>
+                    </div>
+                    <div class="feedback" id="feedback"></div>
+                    <div class="button-container">
+                        <button class="next-btn" onclick="showPage(1)">Back</button>
+                        <button class="check-btn" onclick="checkSequence()">Check Answer</button>
+                    </div>
+                </div>
+            </div>
+
+    <script>
+        function showPage(pageNum) {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    
+    // Show selected page
+    document.getElementById('page' + pageNum).classList.add('active');
+    
+    // Start timer if showing question page
+    if (pageNum === 2) {
+        startTime = Date.now();
+        wrongAttempts = 0;
+    }
+}
+
+function checkAnswer(selected) {
+    const buttons = document.querySelectorAll('.option-btn');
+    const feedback = document.getElementById('feedback');
+    
+    // Remove any existing correct/incorrect classes
+    buttons.forEach(button => {
+        button.classList.remove('correct', 'incorrect');
+    });
+
+    if (selected === 'c') {
+        // Calculate points for correct answer
+        const timeTaken = (Date.now() - startTime) / 1000;
+        let points = POINTS_CONFIG.basePoints;
+        
+        // Add time bonus
+        if (timeTaken <= 5) {
+            points += POINTS_CONFIG.timeBonus.perfect;
+        } else if (timeTaken <= 10) {
+            points += POINTS_CONFIG.timeBonus.good;
+        } else if (timeTaken <= 15) {
+            points += POINTS_CONFIG.timeBonus.normal;
+        } else if (timeTaken > 20) {
+            points += POINTS_CONFIG.penalties.timeOver;
+        }
+        
+        // Subtract penalties for wrong attempts
+        points += wrongAttempts * POINTS_CONFIG.penalties.wrongAnswer;
+        
+        // Ensure minimum points is 0
+        points = Math.max(0, Math.round(points));
+        totalPoints += points;
+
+        // Display feedback with points
+        buttons[2].classList.add('correct');
+        feedback.innerHTML = `
+            <div style="color: green">
+                <p>Correct! Generative AI generates new content.</p>
+                <p>Time: ${Math.round(timeTaken)} seconds</p>
+                <p>Points earned: ${points}</p>
+            </div>`;
+        
+        // Disable all buttons after correct answer
+        buttons.forEach(button => {
+            button.disabled = true;
+        });
+
+        // Navigate to next segment after correct answer
+        setTimeout(() => {
+            window.location.href = 'conclusion.html';
+        }, 2000);
+    } else {
+        // Wrong answer
+        wrongAttempts++;
+        buttons[selected === 'b' ? 0 : 1].classList.add('incorrect');
+        feedback.innerHTML = `
+            <div style="color: red">
+                <p>Incorrect. Please try again.</p>
+                <p>Penalty: ${POINTS_CONFIG.penalties.wrongAnswer} points</p>
+            </div>`;
+        
+        // Disable only the incorrect button
+        buttons[selected === 'b' ? 0 : 1].disabled = true;
+    }
+}
+let currentStep = 1;
+let selectedSteps = [];
+
+function selectStep(button) {
+    if (button.classList.contains('selected')) {
+        return;
+    }
+
+    // Add to sequence
+    selectedSteps.push({
+        element: button,
+        actualStep: parseInt(button.dataset.step)
+    });
+    button.classList.add('selected');
+
+    // Update slot display
+    const slots = document.querySelectorAll('.sequence-slot');
+    slots[currentStep - 1].textContent = `${currentStep}. ${button.textContent.trim()}`;
+    slots[currentStep - 1].classList.add('filled');
+
+    currentStep++;
+}
+
+function checkSequence() {
+    if (selectedSteps.length !== 4) {
+        document.getElementById('feedback').innerHTML = `
+            <div style="color: red">
+                <p>Please select all four steps.</p>
+            </div>`;
+        return;
+    }
+
+    let isCorrect = selectedSteps.every((step, index) => step.actualStep === index + 1);
+    const feedback = document.getElementById('feedback');
+
+    if (isCorrect) {
+        selectedSteps.forEach(step => {
+            step.element.classList.add('correct');
+        });
+        feedback.innerHTML = `
+            <div style="color: green">
+                <p>Correct! You've arranged the S.U.R.E. steps in the right order!</p>
+            </div>`;
+        
+        setTimeout(() => {
+            window.location.href = 'conclusion.html';
+        }, 2000);
+    } else {
+        selectedSteps.forEach(step => {
+            step.element.classList.add('incorrect');
+        });
+        feedback.innerHTML = `
+            <div style="color: red">
+                <p>Incorrect. Try again!</p>
+            </div>`;
+        
+        // Reset sequence
+        setTimeout(() => {
+            resetSequence();
+        }, 1500);
+    }
+}
+
+function resetSequence() {
+    selectedSteps = [];
+    currentStep = 1;
+    const buttons = document.querySelectorAll('.sequence-btn');
+    const slots = document.querySelectorAll('.sequence-slot');
+    
+    buttons.forEach(button => {
+        button.classList.remove('selected', 'correct', 'incorrect');
+    });
+    
+    slots.forEach((slot, index) => {
+        slot.textContent = `${index + 1}. ____________________`;
+        slot.classList.remove('filled');
+    });
+    
+    document.getElementById('feedback').innerHTML = '';
+}
+    </script>
+</body>
+</html>

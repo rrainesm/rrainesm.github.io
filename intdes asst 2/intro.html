@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Gen AI Package - intro</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            overflow: hidden;
+        }
+
+        .section {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 900px;
+            display: flex;
+            gap: 2rem;
+            min-height: 400px;
+        }
+
+        .content-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .image-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            min-height: 300px;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+        }
+
+        .page {
+            display: none;
+            flex: 1;
+        }
+
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        h2 {
+            color: #6366f1;
+            margin-bottom: 1.5rem;
+        }
+
+        .question {
+            margin-top: 20px;
+        }
+
+        h3 {
+            color: #8b5cf6;
+            margin-bottom: 1rem;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            padding: 12px 20px;
+            border: 2px solid #6366f1;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            text-align: left;
+            width: 100%;
+            color: #6366f1;
+        }
+
+        .option-btn:hover {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border-color: transparent;
+        }
+
+        .option-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .option-btn.correct {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .option-btn.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .next-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: auto;
+            align-self: flex-end;
+            transition: opacity 0.3s ease;
+        }
+
+        .next-btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .section {
+                flex-direction: column;
+                padding: 1.5rem;
+            }
+            
+            .image-container {
+                min-height: 200px;
+            }
+        }
+    </style>
+    <script>
+        // Points system configuration
+        const POINTS_CONFIG = {
+            basePoints: 100,
+            timeBonus: {
+                perfect: 50,
+                good: 30,
+                normal: 10
+            },
+            penalties: {
+                wrongAnswer: -20,
+                timeOver: -10
+            }
+        };
+        
+        let startTime;
+        let wrongAttempts = 0;
+        let totalPoints = 0;
+        </script>
+</head>
+<body>
+    <div class="section">
+        <div class="content-container">
+            <!-- Page 1: Content -->
+            <div id="page1" class="page active">
+                <h2>Welcome to IMDA's Generative AI Crash Course!</h2>
+                <p>In this short course, be prepared to learn all about this terrific technology.</p>
+                <p>Get ready for a quick quiz after each Information section - you'll get more points based on your accuracy and speed!</p>
+                <button class="next-btn" onclick="showPage(2)">Next</button>
+            </div>
+
+            <!-- Page 2: Question -->
+            <div id="page2" class="page">
+                <h3>Are you ready to dive into this course?</h3>
+                <div class="options">
+                    <button class="option-btn" onclick="checkAnswer('a')">yes</button>
+                    <button class="option-btn" onclick="checkAnswer('b')">Yes</button>
+                    <button class="option-btn" onclick="checkAnswer('c')">YES !!!!!</button>
+                </div>
+                <div class="feedback" id="feedback"></div>
+                <button class="next-btn" onclick="showPage(1)">Back</button>
+            </div>
+        </div>
+        <div class="image-container">
+            <img src="niceppl.png"
+        </div>
+    </div>
+
+    <script>
+        function showPage(pageNum) {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    
+    // Show selected page
+    document.getElementById(`page${pageNum}`).classList.add('active');
+
+    // Update the back button functionality
+    const backButton = document.querySelector('#page2 .next-btn');
+    if (backButton) {
+        backButton.onclick = () => showPage(1);
+    }
+}
+
+function checkAnswer(selected) {
+    const buttons = document.querySelectorAll('.option-btn');
+    const feedback = document.getElementById('feedback');
+    
+    // Remove any existing classes
+    buttons.forEach(button => {
+        button.classList.remove('incorrect', 'correct');
+    });
+
+    // Find the clicked button and add correct class
+    const selectedButton = buttons[selected === 'a' ? 0 : selected === 'b' ? 1 : 2];
+    selectedButton.classList.add('correct');
+
+    feedback.innerHTML = `
+        <div style="color: green">
+            <p>Let's go!</p>
+        </div>`;
+
+    // Navigate to next segment after 2 seconds
+    setTimeout(() => {
+        window.location.href = 'segment1.html';
+    }, 1000);
+}
+    </script>
+</body>
+</html>
